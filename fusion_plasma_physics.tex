@@ -1,0 +1,411 @@
+\documentclass[10pt]{book}
+\usepackage[T1]{fontenc}
+\usepackage{ae,aecompl}
+\usepackage{tipx}
+\usepackage{a4wide}
+\usepackage{framed}
+\usepackage{ifthen}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{bbm}
+\usepackage{bm}
+\usepackage{array}
+\usepackage{multicol}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{rotating}
+\usepackage{comment}
+\usepackage{hyperref}
+\usepackage{gensymb}
+\usepackage{multicol}
+\usepackage{siunitx}
+\usepackage{todonotes}
+\usepackage{enumitem}
+
+% the next block is the modern way of achieving 'a4wide'.
+\usepackage{geometry}
+\usepackage{layout}
+\geometry{
+  includeheadfoot,
+  margin=2.54cm
+}
+
+\usepackage{subfigure}
+
+% modern way of using tables
+\usepackage{booktabs}
+
+
+\graphicspath{{pictures/}}
+
+
+\usepackage[dutch,USenglish]{babel}
+\selectlanguage{USenglish}
+
+\usepackage[margin=10pt,font=small,labelfont=bf]{caption}
+
+% Use letters to label items in enumerations
+\renewcommand{\theenumi}{\alph{enumi}}
+
+% A small red pepper, used to indicate an above-average difficult question
+\newcommand{\spicy}[0]{\includegraphics[width=0.02\textwidth]{pictures/spicy}}
+
+\title{Plasma Physics \\
+		--- \\
+	34PPH}
+\author{Toon Weyens}
+\date{Version 2025/2026}
+
+\bibliographystyle{unsrt}
+
+
+
+\begin{document}
+
+\maketitle
+
+
+\chapter{Plasma Physics theories for Fusion}
+\label{sec:fusion-plasma-physics}
+
+This appendix contains information about plasma physics theories applied specifically to Magnetic Nuclear Fusion.
+It is not intended for consumption by anyone else except the author, Toon Weyens, and is not part of the course material, though some course material will be based off it.
+
+\section{Information per theory}
+
+This section contains recipes for the derivation of some of the most important plasma physics theories used in Magnetic Nuclear Fusion.
+They are kept to a bullet-point list, with enough detail to understand them, but without going into actual equations.
+
+\subsection{Single-Particle Picture}
+\label{subsec:single-particle}
+
+The single-particle picture describes plasma dynamics in terms of the motion of individual charged particles in prescribed electromagnetic fields. 
+It provides the microscopic foundation for understanding guiding-center motion, drifts, and confinement, which are later averaged over in kinetic and fluid theories.
+
+\subsubsection{Numerical codes}
+\todo[inline]{Add codes solving single-particle orbits, e.g. ORBIT, ASCOT, SPIRAL.}
+
+\subsubsection{Starting point}
+Newton–Lorentz equation for a charged particle:
+\begin{equation}
+  m \frac{d\mathbf{v}}{dt} = q \left( \mathbf{E} + \frac{\mathbf{v}\times \mathbf{B}}{c} \right), 
+  \qquad
+  \frac{d\mathbf{r}}{dt} = \mathbf{v}.
+\end{equation}
+
+\subsubsection{Assumptions}
+\begin{itemize}
+    \item \textbf{Test particle:} Electromagnetic fields are prescribed; particle does not modify them.
+    \item \textbf{Collisionless:} Dynamics is determined purely by fields; collisions neglected.
+    \item \textbf{Separation of scales:} Gyromotion is fast compared to drift motion and macroscopic confinement times.
+\end{itemize}
+
+\subsubsection{Steps}
+\begin{enumerate}
+    \item \textbf{Gyromotion:} Charged particle executes rapid Larmor rotation around magnetic field lines with frequency $\Omega_c = q B / m c$ and radius $\rho = v_\perp / \Omega_c$.
+    \item \textbf{Guiding-center transformation:} Average over fast gyromotion to obtain slower drift dynamics of the guiding center.
+    \item \textbf{Drift motions:} Identify drifts due to field inhomogeneities and forces, e.g.
+    \begin{itemize}
+        \item $\mathbf{E}\times\mathbf{B}$ drift (independent of species).
+        \item Grad-$B$ and curvature drifts (depend on charge and energy).
+        \item Polarization drift (time-varying electric fields).
+    \end{itemize}
+    \item \textbf{Adiabatic invariants:} Define invariants such as the magnetic moment $\mu = m v_\perp^2 / 2B$ that remain conserved if fields vary slowly.
+\end{enumerate}
+
+\subsubsection{Results}
+\begin{itemize}
+    \item Provides physical intuition for particle confinement and losses.
+    \item Explains separation of time scales (gyro, bounce, drift) underlying kinetic and neoclassical theory.
+    \item Yields guiding-center and drift equations used in orbit-following codes.
+    \item Forms the basis for understanding trapped vs. passing particle populations in toroidal geometry.
+\end{itemize}
+
+
+
+\subsection{Test-Particle Collisional Model}
+
+The collisional single-particle picture extends the test-particle description by including the effect of Coulomb collisions. 
+Once collisions are included one must move to an $N$-body description, where all particles interact deterministically through Coulomb forces. 
+
+Note that since solving the full $N$-body problem is impossible for a plasma ($N \gg 10^{20}$), practical models replace it by statistical descriptions (Fokker--Planck operators or Monte Carlo realizations). 
+Thus, the ``collisional single-particle'' approach is best understood as a test-particle moving in prescribed fields, subject to statistically averaged collisional effects.
+
+\subsubsection{Numerical codes}
+\todo[inline]{Add orbit-following codes with collisions, e.g. ASCOT, ORBIT with collisional modules.}
+
+\subsubsection{Starting point}
+Newton–Lorentz equation (from \nameref{subsec:single-particle}) supplemented by collisional effects:
+\begin{equation}
+  m_a \frac{d\mathbf{v}}{dt} = q_a \left( \mathbf{E} + \frac{\mathbf{v}\times \mathbf{B}}{c} \right) + \mathbf{F}_{\text{coll},a},
+\end{equation}
+where $\mathbf{F}_{\text{coll},a}$ represents the cumulative effect of many small-angle Coulomb encounters with other particles.
+
+\subsubsection{Assumptions}
+\begin{itemize}
+    \item \textbf{Test particle:} Electromagnetic fields are prescribed; the particle does not modify them.
+    \item \textbf{Separation of scales:} Gyromotion is fast compared to drift motion and macroscopic confinement times.
+    \item \textbf{Binary Coulomb collisions:} Approximated as the cumulative effect of many two-body small-angle scatterings.
+    \item \textbf{Markovian approximation:} Deflections are uncorrelated; memory effects are neglected.
+\end{itemize}
+
+\subsubsection{Steps}
+\begin{enumerate}
+    \item \textbf{Conceptual $N$-body picture:} True deterministic collisional dynamics requires solving coupled equations for all particles. 
+    This is infeasible in plasmas.
+    \item \textbf{Statistical reduction:} Replace exact binary interactions with effective drag and diffusion in velocity space.  
+    \item \textbf{Mathematical representations:}
+    \begin{itemize}
+        \item \emph{Deterministic PDE:} Fokker--Planck operator with drift and diffusion coefficients.
+        \item \emph{Stochastic form:} Monte Carlo kicks applied to test particles to reproduce the same statistics.
+    \end{itemize}
+    \item \textbf{Collision frequencies:} Define slowing-down rate $\nu_s$, pitch-angle scattering rate $\nu_D$, and energy diffusion rate $\nu_E$.
+\end{enumerate}
+
+\subsubsection{Results}
+\begin{itemize}
+    \item Clarifies that true deterministic collisional dynamics is inherently $N$-body; all practical collisional models are statistical.  
+    \item Explains how particles relax toward Maxwellian distributions via scattering in basic scenarios.  
+    \item Provides effective collision operators for kinetic simulations (Boltzmann, Landau, Fokker--Planck).  
+    \item Supplies characteristic times: collision time, slowing-down time, mean free path.  
+    \item Forms the basis for orbit-following codes that include collisional scattering and runaway electron studies.  
+\end{itemize}
+
+
+
+
+\subsection{Kinetic theory}
+\label{subsec:kinetic_theory}
+
+Kinetic theory describes the behavior of plasmas in terms of the statistical properties of their constituent particles. It provides a framework for understanding how individual particle motions give rise to macroscopic plasma behavior, including transport phenomena and stability.
+
+\subsubsection{Numerical codes}
+\todo[inline]{Look into these codes}
+Direct solvers of the full kinetic equation are rare in fusion because of extreme computational cost. 
+In practice, kinetic approaches are simplified into reduced models (gyrokinetics, neoclassical, or fluid).
+Examples of codes working closer to the general kinetic level include:
+\begin{itemize}
+    \item \textbf{Gkeyll}, \textbf{VALIS}, \textbf{VERITAS}: Vlasov--Maxwell solvers (low-dimensional or specialized geometries).
+    \item \textbf{NORSE}, \textbf{CODE}, \textbf{CQL3D}: Fokker--Planck solvers, often reduced to 2D velocity space, used for RF physics and runaway electrons.
+    \item \textbf{ORBIT}, \textbf{ASCOT}: Guiding-center Monte Carlo codes for fast particle dynamics.
+\end{itemize}
+but note that these codes typically employ additional simplifications, e.g in the form of reduced dimensionality or simplified collision models.
+
+
+\subsubsection{Assumptions}
+\begin{itemize}
+    \item \textbf{Statistical approach:} Many particles, so we approximate the individual dynamics by smooth distribution functions.
+    \item \textbf{Binary collisions:} Collisional effects are modeled as sums of pairwise interactions between species.
+    \item \textbf{Quasi-neutrality:} On macroscopic scales $n_e \approx \sum_i Z_i n_i$.
+\end{itemize}
+
+\subsubsection{Steps}
+\begin{enumerate}
+  \item \textbf{Phase-space density (species $a$):} $f_a\left(\mathbf{r}, \mathbf{v}, t\right)$ describing density of particles of species $a$ in 6D phase space (position $\mathbf{r}$ + velocity $\mathbf{v}$), as well as time $t$
+  \item \textbf{Vlasov equation (species $a$):} phase–space evolution in the collisionless limit.
+  \begin{equation}
+        \frac{\partial f_a}{\partial t}
+        + \mathbf{v} \cdot \nabla_{\mathbf{r}} f_a
+        + \frac{q_a}{m_a} \left( \mathbf{E} + \mathbf{v} \times \mathbf{B} \right) \cdot \nabla_{\mathbf{v}} f_a
+        = 0
+  \end{equation}
+
+  \item \textbf{Boltzmann equation (species $a$):} include general binary-collision operators with all other species $b$.
+  It is written generally for any two-body potential.
+  In practice it is most useful for short-range, hard-sphere–like interactions, because then the cross section is well defined and large-angle scattering dominates.
+  \begin{equation}
+    \frac{\partial f_a}{\partial t} + \dots = \sum_b C_{ab}^{\text{Boltz}}[f_a,f_b] \quad ,
+  \end{equation}
+  with the Boltzmann collision operator $C_{ab}^{\text{Boltz}}[f_a,f_b]$ treating each collision as a discrete jump in velocity, removing and adding to populations at these velocities:
+    \begin{equation}
+        C^\text{Boltz}_{ab}[f_a,f_b](\mathbf{v}) =
+        \int_{\mathbb{R}^3}\! d^3\mathbf{v}_2 \int d\Omega\;
+        g\, \frac{d\sigma_{ab}}{d\Omega}(g,\Omega)\,
+        \Big[ f_a(\mathbf{v}_a^\star)\,f_b(\mathbf{v}_b^\star) - f_a(\mathbf{v})\,f_b(\mathbf{v}_2) \Big] \quad ,
+    \end{equation}
+    where $\mathbf{v}^\star$ is the pre-collision velocity that leads to post-collision velocity $\mathbf{v}$ (and similarly for $\mathbf{v}_2^\star$), $g = |\mathbf{v} - \mathbf{v}_2|$ is the relative speed, and $d\sigma_{ab}/d\Omega$ is the differential cross section for scattering from species $a$ and $b$.
+
+  \item \textbf{Landau operator:} Coulomb–specific small–angle limit of Boltzmann for species $a$ colliding with $b$. 
+  \begin{equation}
+    C_{ab}^{\text{Landau}}[f_a,f_b]
+  \end{equation}
+  Note that the cross section for Boltzmann is very forward-peaked: almost all encounters are tiny deflections.
+  Therefore, if you insert the Coulomb cross section into the Boltzmann collision integral, the integral diverges (because of the infinite range of $1/r$).
+  To make this work mathematically Landau treated the Coulomb case by expanding the Boltzmann operator in the limit of small deflection angles and summing the cumulative effect of many such encounters.
+  That approximation turns the discrete “jump” operator that is typical for Boltzmann into a Fokker–Planck (drift–diffusion) operator in velocity space, called the Landau collision operator.
+
+
+  \item \textbf{Fokker–Planck equation:} general drift–diffusion form of kinetic equation.
+  In plasma physics, the Landau operator provides the explicit Coulomb version.
+  \begin{equation}
+    \frac{\partial f_a}{\partial t} + \dots = \sum_b C_{ab}^{\text{FP}}[f_a,f_b]
+  \end{equation}
+\end{enumerate}
+
+\subsubsection{Results}
+Quantities and insights from kinetic theory, forming the foundation for higher-level models:
+\begin{itemize}
+    \item \textbf{Primary:} Distribution functions $f_a(\mathbf{r},\mathbf{v},t)$ for each species; explicit collisional operators $C_{ab}$ (Boltzmann, Landau, Fokker--Planck).
+    \item \textbf{Derived:} Collision frequencies, mean free paths, slowing-down times, Spitzer resistivity, classical transport coefficients.
+    \item \textbf{Applications:} Basis for fluid models (via moments), neoclassical transport (via drift-kinetic reductions), and validation of turbulence/transport simulations.
+\end{itemize}
+
+
+
+\subsection{Neoclassical Transport}
+
+\subsubsection{Numerical codes}
+\todo[inline]{Add info about these codes}
+\begin{itemize}
+    \item Astra
+    \item TRANSP
+    \item JINTRAC
+\end{itemize}
+
+\subsubsection{Starting point}
+The Fokker--Planck equation (See \nameref{subsec:kinetic_theory})
+
+\subsubsection{Assumptions}
+\begin{itemize}
+    \item \textbf{Flux-surface containment:} To zeroth order, particles and energy are confined to magnetic flux surfaces. 
+        Radial fluxes across flux surfaces are assumed to be small and appear only at first order (due to drifts, collisions, and electric fields).  
+    \item \textbf{Small gyroradius:} Ordering $\rho / a \ll 1$ allows guiding-center reduction and drift-kinetic treatment.
+    \item \textbf{High gyrofrequency:} Drift and collision frequencies are much smaller than the cyclotron frequency, $\nu, \omega_d \ll \Omega_c$, so gyro-motion can be averaged out.
+    \item \textbf{Linearization:} Distribution function split into $f_a = f_{a,0} + f_{a,1}$ with $f_{a,1} \ll f_{a,0}$, enabling perturbative treatment around Maxwellian $f_{a,0}$.
+\end{itemize}
+
+\subsubsection{Steps}
+\begin{enumerate}
+  \item \textbf{Kinetic theory:} Start from the Fokker--Planck equation for the distribution function $f(\mathbf{r},\mathbf{v},t)$, including collisions.
+    \begin{equation}
+        \frac{\partial f_a}{\partial t}
+        + \mathbf{v} \cdot \nabla_{\mathbf{r}} f_a
+        + \frac{q_a}{m_a} \left( \mathbf{E} + \mathbf{v} \times \mathbf{B} \right) \cdot \nabla_{\mathbf{v}} f_a
+        = \sum_b C_{ab}[f_a, f_b],
+    \end{equation}
+
+  \item \textbf{Drift-kinetic equation:} In strong magnetic field $\mathbf{B}$, apply guiding-center reduction. Averaging over the gyro-angle yields reduced equations for the guiding-center coordinates $(\mathbf{R}, v_{\parallel}, \mu)$ instead of $(\mathbf{r}, \mathbf{v})$.
+  \begin{itemize}
+    \item $\mathbf{R}$: guiding center position, often in flux coordinates.
+    \item $v_{\parallel}$: parallel velocity.
+    \item $\mu = m v_{\perp}^2 / 2B$: magnetic moment, encoding perpendicular kinetic energy.
+  \end{itemize}
+
+  \item \textbf{Linearization:} Linearize drift-kinetic equation around Maxwellian equilibrium $f_a = f_{a,0} + f_{a,1}$ with $f_{a,0}$ Maxwellian and $f_{a,1} \ll f_{a,0}$.
+  \begin{itemize}
+    \item $f_{a,0}$: Maxwellian, written in terms of $n_a$, $T_a$, and optionally $u_{\parallel a}$ for consistency with nonzero parallel bulk flow (e.g. Ohmic current drive):
+        \begin{equation}
+        f_{a,0}(\mathbf{v}) = n_a \left( \frac{m_a}{2\pi T_a} \right)^{3/2}
+        \exp\!\left[
+        - \frac{m_a}{2T_a} \left( (v_{\parallel} - u_{\parallel a})^2 + v_{\perp}^2 \right)
+        \right],
+        \end{equation}
+
+    \item $f_{a,1}$: introduces anisotropy from $\nabla n$, $\nabla T$, $E_r$, magnetic drifts. Collisionality determines trapped vs. passing particle behavior (banana, plateau, Pfirsch--Schl\"uter regimes).
+  \end{itemize}
+
+  \item \textbf{Solve for $f_{a,1}$:} Encodes how gradients, geometry, and fields perturb the local Maxwellian, providing fluxes.
+
+  \item \textbf{Velocity-space moments:}
+  \begin{itemize}
+    \item For $f_{a,0}$: trivial, yielding $n_a$, $\mathbf{u}_a$, $T_a$ or $p_a$.
+    \item For $f_{a,1}$: leads to radial fluxes:
+    \begin{align}
+        \Gamma_{\psi a} &\sim - D_a \nabla n_a + \dots, \\
+        q_{\psi a} &\sim - \chi_a \nabla T_a + \dots, \\
+        j_{\parallel a} &\neq 0 \quad \text{even if } E_\parallel = 0 \quad (\text{bootstrap current}).
+    \end{align} 
+  \end{itemize}
+
+  \item \textbf{Constraints:} Determine the radial electric field $E_r$ by imposing ambipolarity (no net current across flux surfaces, which is already true in axisymmetry)
+  \begin{equation}
+    \sum_a Z_a e \, \Gamma_{\psi a}(E_r) = 0,
+  \end{equation}
+  relate densities by assuming quasi-neutrality (Debye shielding is very fast)
+  \begin{equation}
+    \sum_a Z_a n_a \approx 0,
+  \end{equation}
+  and parallel flows for each species $u_{\parallel a}$ by using parallel momentum balance (also known as force balance).
+
+  \item \textbf{Closure:} Substitute flux expressions into profile evolution equations $n_a(\mathbf{R},t)$, $T_a(\mathbf{R},t)$, etc.
+
+  \item \textbf{Flux-surface averaging:} Average over flux surfaces, obtaining transport equations as functions of flux coordinate $\psi$ and time $t$.
+
+  \item \textbf{Transport equations:} Evolve profiles with sources/sinks toward steady state or in time.
+
+\end{enumerate}
+
+\subsubsection{Results}
+Quantities and insights used in higher-level models (e.g., MHD):
+  \begin{itemize}
+    \item \textbf{Primary:} Particle flux $\Gamma_{\psi a}$, heat flux $q_{\psi a}$, parallel current $j_{\parallel a}$. 
+    \item \textbf{Derived:} Transport coefficients ($D_a, \chi_a$), bootstrap current, collisionality-regime scalings. 
+  \end{itemize}
+
+
+
+\subsection{General MHD}
+
+Magnetohydrodynamics (MHD) describes a plasma as a conducting fluid interacting with electromagnetic fields. 
+It is obtained by taking velocity moments of the kinetic equation and combining them with Maxwell’s equations. 
+This subsection presents the general framework; specific closures (ideal, resistive, two-fluid, Braginskii) are introduced in later subsections.
+
+\subsubsection{Numerical codes}
+Have a look at the next subsections instead, as they contain more specific MHD models with their own codes.
+
+\subsubsection{Starting point}
+Fokker–Planck equation for the distribution function $f_a(\mathbf{r},\mathbf{v},t)$ of species $a$ (see \nameref{subsec:kinetic_theory})
+
+\subsubsection{Assumptions}
+\begin{itemize}
+    \item \textbf{Fluid moment hierarchy:} Use velocity-space moments for each species. 
+    Typically truncate after (0) density, (1) velocity, and (2) pressure/temperature, unless higher-order closures are needed.
+    \item \textbf{Quasi-neutrality:} Net charge density is small on macroscopic scales, $\sum_a Z_a n_a \approx 0$.
+    \item \textbf{Macroscopic ordering:} Valid on scales much larger than gyroradius and times longer than gyroperiods.
+    \item \textbf{Low-frequency:} Characteristic velocities $\ll c$, displacement current neglected in Ampère’s law.
+\end{itemize}
+
+\subsubsection{Steps}
+\begin{enumerate}
+    \item \textbf{Kinetic theory:} Start from the Fokker--Planck equation for the distribution function $f(\mathbf{r},\mathbf{v},t)$, including collisions.
+    \begin{equation}
+        \frac{\partial f_a}{\partial t}
+        + \mathbf{v} \cdot \nabla_{\mathbf{r}} f_a
+        + \frac{q_a}{m_a} \left( \mathbf{E} + \mathbf{v} \times \mathbf{B} \right) \cdot \nabla_{\mathbf{v}} f_a
+        = \sum_b C_{ab}[f_a, f_b],
+    \end{equation}
+
+    \item \textbf{Take velocity moments per species:} This leads to equations for density $n_a$, bulk velocity $\mathbf{u}_a$, and temperature $T_a$ (or pressure $p_a = n_a T_a$) for each species $a$.
+    Note that the equation resulting from a moment (i) depends on quantities from the next higher moment (i+1), leading to a hierarchy that needs closure.
+
+    \item \textbf{Introduce Maxwell’s equations:} Needed to evolve $\mathbf{B}$ and to replace $\mathbf{E}$ and $\mathbf{J}$ in terms of fluid variables, ensuring self-consistent coupling of fields and plasma.
+    
+    \item \textbf{Coupling:} The species equations are linked through $\mathbf{E}, \mathbf{B}, \mathbf{J}$ and collisional friction terms $\mathbf{R}_a$ (momentum and energy exchange).
+
+    \item \textbf{Closure:} Truncate the hierarchy by modeling the pressure tensor $\mathbf{P}_a$, heat flux $\mathbf{q}_a$, and Ohm’s law. Different closures define specific MHD models:
+    \begin{itemize}
+        \item Ideal MHD: isotropic pressure, infinite conductivity.
+        \item Resistive MHD: finite resistivity.
+        \item Two-fluid / extended MHD: keep Hall term, electron pressure gradient, FLR corrections.
+        \item Braginskii MHD: collisional transport closures for viscosity and heat flux.
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{Results}
+\begin{itemize}
+    \item General MHD gives a multi-fluid framework: continuity, momentum, and energy equations for each species coupled via Maxwell’s equations.
+    \item To reduce complexity, closures are required for $\mathbf{P}_a$, $\mathbf{q}_a$, and the collisional terms $\mathbf{R}_a$.
+    \item Special cases arise depending on modeling choices, e.g.\ ideal vs.\ resistive Ohm's law, single-fluid vs.\ multi-fluid, and collisional vs.\ collisionless closures.
+    In general, MHD models can be distinguished along several orthogonal dimensions:
+    \begin{itemize}
+        \item \textbf{Number of fluids:} single-fluid (bulk plasma), two-fluid (ions and electrons), or multi-fluid (separate ion species plus electrons).
+        \item \textbf{Ohm's law closure:} ideal (infinite conductivity), resistive (finite $\eta$), or extended (Hall term, electron pressure gradient, inertia).
+        \item \textbf{Transport closure:} scalar pressure, Braginskii (anisotropic collisional transport), or alternative closures (neoclassical, anomalous/turbulent).
+        \item \textbf{Collisionality regime:} collisionless vs.\ collisional vs.\ hybrid models (adding anomalous transport on top of collisional).
+        \item \textbf{Geometry/ordering:} full toroidal vs.\ reduced MHD, slab/cylindrical approximations, strong guide-field limits.
+    \end{itemize}
+    \item Applications: equilibrium, stability, reconnection, transport modeling.
+\end{itemize}
+
+\end{document}
